@@ -1,4 +1,5 @@
 from django.conf.urls.defaults import *
+from settings import STATIC_DOC_ROOT,ARCHIVE_ROOT
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin

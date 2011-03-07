@@ -1,4 +1,5 @@
 from django.db import models
+from tinyarchive.models import Resource
 
 class Prefix(models.Model):
     prefix = models.CharField(max_length=255, unique=True)
@@ -22,6 +23,7 @@ class Feed(models.Model):
     refresh_rate = models.IntegerField(default=10*60)
     base_url = models.CharField(max_length=255)
     archive_objects = models.BooleanField(default=False)
+    default = models.BooleanField(default=True)
     xslt_transform = models.TextField(blank=True)
 
     def __unicode__(self):
@@ -29,8 +31,8 @@ class Feed(models.Model):
 
 
 class Identifier(models.Model):
-    prefix = models.ForeignKey(Prefix) #, blank=True, null=True, on_delete=models.SET_NULL)
-    feed = models.ForeignKey(Feed) #, blank=True, null=True, on_delete=models.SET_NULL)
+    prefix = models.ForeignKey(Prefix, blank=True, null=True) # Django 1.3 only ..., on_delete=models.SET_NULL)
+    feed = models.ForeignKey(Feed, blank=True, null=True) # Django 1.3 only ..., on_delete=models.SET_NULL)
     identifier = models.CharField(max_length=255, unique=True)
     reload_check = models.BooleanField(default=False)
     deleted = models.BooleanField(default=False)
@@ -41,6 +43,7 @@ class Identifier(models.Model):
 
 class URL(models.Model):
     identifier = models.ForeignKey(Identifier)
+    feed = models.ForeignKey(Feed)
     url = models.CharField(max_length=255)
     content_type = models.CharField(max_length=64, blank=True)
     default = models.BooleanField(default=True)
@@ -52,8 +55,23 @@ class URL(models.Model):
         return self.url + ", default=" + str(self.default) + ", content-type='" + self.content_type + "'"
 
 
+class Namespace(models.Model):
+    name = models.CharField(max_length=128)
+    uri = models.CharField(max_length=255)
+
+    def __unicode__(self):
+        return self.name
+
+
+class Schema(models.Model):
+    name = models.CharField(max_length=128)
+    uri = models.CharField(max_length=255)
+
+    def __unicode__(self):
+        return self.name
+
 class Metadata(models.Model):
     identifier = models.ForeignKey(Identifier)
-    schema = models.CharField(max_length=128)
+    schema = models.ForeignKey(Schema)
     data = models.TextField()
 
