@@ -5,7 +5,7 @@ class Prefix(models.Model):
     redirect_url = models.CharField(max_length=255, blank=True)
     redirect_on_miss = models.BooleanField(default=False)
     mint = models.BooleanField(default=False)
-    next_id = models.IntegerField(default=0)
+    next_id = models.IntegerField(default=1)
     allow_feed = models.BooleanField(default=True)
 
     def __unicode__(self):
@@ -20,6 +20,7 @@ FEED_TYPE_CHOICES = (
 FEED_STATUS_CHOICES = (
         ('IDLE', 'Idle'),
         ('RUNNING', 'Running'),
+        ('ERROR', 'Error')
     )
 
 class Feed(models.Model):
@@ -29,19 +30,22 @@ class Feed(models.Model):
     status_message = models.TextField(blank=True)
     refresh_rate = models.IntegerField(default=10*60)
     base_url = models.CharField(max_length=255)
-    harvest_started = models.DateTimeField(blank=True, null=True)
+    extra_url_parameters=models.CharField(max_length=255)
+    latest_timestamp = models.DateTimeField(blank=True, null=True)
+    next_harvest = models.DateTimeField(blank=True, null=True)
     last_harvest = models.DateTimeField(blank=True, null=True)
     xslt_transform = models.TextField(blank=True)
+    n_retries = models.IntegerField(default=0)
 
     def __unicode__(self):
-        return self.prefix.prefix + '(' + self.type + ')'
+        return str(self.prefix) + '(' + self.type + ')'
 
 
 class Identifier(models.Model):
-    prefix = models.ForeignKey(Prefix, blank=True, null=True) # Django 1.3 only ..., on_delete=models.SET_NULL)
-    feed = models.ForeignKey(Feed, blank=True, null=True) # Django 1.3 only ..., on_delete=models.SET_NULL)
+#    prefix = models.ForeignKey(Prefix, blank=True, null=True) # Django 1.3 only ..., on_delete=models.SET_NULL)
+#    feed = models.ForeignKey(Feed, blank=True, null=True) # Django 1.3 only ..., on_delete=models.SET_NULL)
     identifier = models.CharField(max_length=255, unique=True)
-    reload_check = models.BooleanField(default=False)
+#    reload_check = models.BooleanField(default=False)
     deleted = models.BooleanField(default=False)
 
     def __unicode__(self):
@@ -64,7 +68,8 @@ class URL(models.Model):
 
 class Schema(models.Model):
     name = models.CharField(max_length=128)
-    uri = models.CharField(max_length=255, blank=True)
+    schema_uri = models.CharField(max_length=255, blank=True)
+    namespace_uri = models.CharField(max_length=255, blank=True)
 
     def __unicode__(self):
         return self.name
