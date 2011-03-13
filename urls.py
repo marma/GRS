@@ -1,5 +1,5 @@
 from django.conf.urls.defaults import *
-from settings import STATIC_DOC_ROOT,ARCHIVE_ROOT
+from settings import STATIC_DOC_ROOT
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -10,7 +10,6 @@ urlpatterns = patterns('',
     # (r'^GRS/', include('GRS.foo.urls')),
 
     (r'^media/(?P<path>.*)$', 'django.views.static.serve', { 'document_root': STATIC_DOC_ROOT }),
-    (r'^archive/(?P<path>.*)$', 'django.views.static.serve', { 'document_root': ARCHIVE_ROOT }),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     (r'^admin/doc/', include('django.contrib.admindocs.urls')),

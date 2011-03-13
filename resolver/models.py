@@ -1,5 +1,4 @@
 from django.db import models
-from tinyarchive.models import Resource
 
 class Prefix(models.Model):
     prefix = models.CharField(max_length=255, unique=True)
@@ -7,27 +6,35 @@ class Prefix(models.Model):
     redirect_on_miss = models.BooleanField(default=False)
     mint = models.BooleanField(default=False)
     next_id = models.IntegerField(default=0)
+    allow_feed = models.BooleanField(default=True)
 
     def __unicode__(self):
         return self.prefix
 
 
-FEED_CHOICES = (
+FEED_TYPE_CHOICES = (
         ('OAIPMH', 'OAI-PMH'),
         ('AFEED', 'Atom Feed')
     )
 
+FEED_STATUS_CHOICES = (
+        ('IDLE', 'Idle'),
+        ('RUNNING', 'Running'),
+    )
+
 class Feed(models.Model):
     prefix = models.ForeignKey(Prefix)
-    type = models.CharField(max_length=32, choices=FEED_CHOICES)
+    type = models.CharField(max_length=32, choices=FEED_TYPE_CHOICES)
+    status = models.CharField(max_length=32, choices=FEED_STATUS_CHOICES)
+    status_message = models.TextField(blank=True)
     refresh_rate = models.IntegerField(default=10*60)
     base_url = models.CharField(max_length=255)
-    archive_objects = models.BooleanField(default=False)
-    default = models.BooleanField(default=True)
+    harvest_started = models.DateTimeField(blank=True, null=True)
+    last_harvest = models.DateTimeField(blank=True, null=True)
     xslt_transform = models.TextField(blank=True)
 
     def __unicode__(self):
-        return "prefix=" + self.prefix.prefix + "', type=" + self.type + ", base_url=" + self.base_url + ", archive_objects=" + str(self.archive_objects)
+        return self.prefix.prefix + '(' + self.type + ')'
 
 
 class Identifier(models.Model):
@@ -55,23 +62,18 @@ class URL(models.Model):
         return self.url + ", default=" + str(self.default) + ", content-type='" + self.content_type + "'"
 
 
-class Namespace(models.Model):
-    name = models.CharField(max_length=128)
-    uri = models.CharField(max_length=255)
-
-    def __unicode__(self):
-        return self.name
-
-
 class Schema(models.Model):
     name = models.CharField(max_length=128)
-    uri = models.CharField(max_length=255)
+    uri = models.CharField(max_length=255, blank=True)
 
     def __unicode__(self):
         return self.name
+
 
 class Metadata(models.Model):
     identifier = models.ForeignKey(Identifier)
     schema = models.ForeignKey(Schema)
     data = models.TextField()
 
+    def __unicode__(self):
+        return str(self.identifier) + ' (' + str(self.schema) + ')'

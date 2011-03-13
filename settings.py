@@ -62,8 +62,6 @@ ADMIN_MEDIA_PREFIX = '/admin-media/'
 
 STATIC_DOC_ROOT=os.path.join(SITE_ROOT, 'resources/')
 
-ARCHIVE_ROOT='/data/grs_archive'
-
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '5j12)d51mf4+#7+5&v-0qqyk(*wmyw40i%6iz9k!)%e4%ks4d@'
 
@@ -99,5 +97,4 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     'django.contrib.admindocs',
     'GRS.resolver',
-    'GRS.tinyarchive',
 )
